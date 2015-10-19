@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UAT Triage</title>
+
+    <script type="text/javascript" src="/apps/2.0/sdk.js"></script>
+
+    <script type="text/javascript">
+        Rally.onReady(function () {
+                Ext.define("CustomApp",{extend:"Rally.app.App",componentCls:"app",launch:function(){var columns=[{value:"Submitted",columnHeaderConfig:{headerData:{state:"Submitted"}}},{value:"Open",columnHeaderConfig:{headerData:{state:"Open"}}},{value:"Open",columnHeaderConfig:{headerData:{state:"Requirement Defect"}}},{value:"Open",columnHeaderConfig:{headerData:{state:"Training Update"}}},{value:"Deferred",columnHeaderConfig:{headerData:{state:"Deferred"}}}];this.add({xtype:"rallycardboard",types:["Defect"],attribute:"State",context:this.getContext(),readOnly:!0,columnConfig:{columnHeaderConfig:{headerTpl:"{state}"},plugins:[{ptype:"rallycolumncardcounter"}]},columns:columns,cardConfig:{showIconsAndHighlightBorder:!1,editable:!1,fields:["CreationDate"],showAge:!0},rowConfig:{field:"c_TestingType"}})}});
+
+            Rally.launchApp('CustomApp', {
+                name:"UAT Triage",
+	            parentRepos:""
+            });
+
+        });
+    </script>
+
+
+    <style type="text/css">
+        
+    </style>
+</head>
+<body>
+</body>
+</html>
