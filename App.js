@@ -57,7 +57,7 @@ Ext.define('CustomApp', {
 			},
 			columnConfig: {
 				columnHeaderConfig: {
-					headerTpl: '{triageVerdict} TEST'
+					headerTpl: '{triageVerdict}'
 				},
 				plugins: [
 					{ptype: 'rallycolumncardcounter'}
