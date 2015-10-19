@@ -12,40 +12,39 @@
     componentCls: 'app',
 	launch: function() {
 			
-
 		// -----------------------
 		// FILTER BY TESTING TYPE?
 		// -----------------------
 		
 		var columns = [
 			{
-				value: 'Submitted',
+				value: 'CAT 0: Triage',
 				columnHeaderConfig: {
-					headerData: {state: 'Submitted'}
+					headerData: {triageVerdict: 'CAT 0: Triage'}
 				}
 			},
 			{
-				value: 'Open',
+				value: 'CAT 1: OAF Defect',
 				columnHeaderConfig: {
-					headerData: {state: 'Open'}
+					headerData: {triageVerdict: 'CAT 1: OAF Defect'}
 				} 
 			},
 			{
-				value: 'Open',
+				value: 'CAT 2: OAF Requirement',
 				columnHeaderConfig: {
-					headerData: {state: 'Requirement Defect'}
+					headerData: {triageVerdict: 'CAT 2: OAF Requirement'}
 				} 
 			},
 			{
-				value: 'Open',
+				value: 'CAT 3: OAF Training',
 				columnHeaderConfig: {
-					headerData: {state: 'Training Update'}
+					headerData: {triageVerdict: 'CAT 3: OAF Training'}
 				} 
 			},
 			{
-				value: 'Deferred',
+				value: 'CAT 4: Non-OAF',
 				columnHeaderConfig: {
-					headerData: {state: 'Deferred'}
+					headerData: {triageVerdict: 'CAT 4: Non-OAF'}
 				} 
 			}
 		];
@@ -53,12 +52,12 @@
 		this.add({
 			xtype: 'rallycardboard',
 			types: ['Defect'],
-			attribute: 'State',
+			attribute: 'c_TriageVerdict',
 			context: this.getContext(),
 			readOnly: true,
 			columnConfig: {
 				columnHeaderConfig: {
-					headerTpl: '{state}'
+					headerTpl: '{triageVerdict} TEST'
 				},
 				plugins: [
 					{ptype: 'rallycolumncardcounter'}
