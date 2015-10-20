@@ -65,8 +65,8 @@ Ext.define('CustomApp', {
 			},
 			columns: columns,
 			cardConfig: {
-				showIconsAndHighlightBorder: false,
-				editable: false,
+				showIconsAndHighlightBorder: true,
+				editable: true,
 				fields: ['CreationDate','c_TestingType'],
 				showAge: true
 			},
