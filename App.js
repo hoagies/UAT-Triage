@@ -47,7 +47,7 @@ Ext.define('CustomApp', {
 			types: ['Defect'],
 			attribute: 'c_TriageVerdict',
 			context: this.getContext(),
-			readOnly: true,
+			// readOnly: true,
 			storeConfig: {
 				context: {
 					project: project_oid,
@@ -67,11 +67,11 @@ Ext.define('CustomApp', {
 			cardConfig: {
 				showIconsAndHighlightBorder: false,
 				editable: false,
-				fields: ['CreationDate'],
+				fields: ['CreationDate','c_TestingType'],
 				showAge: true
 			},
 			rowConfig: {
-				field: 'c_TestingType'
+				field: 'Severity'
 			}
 		});
 	}
