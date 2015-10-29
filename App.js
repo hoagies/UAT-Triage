@@ -45,11 +45,10 @@ Ext.define('CustomApp', {
 		var project_oid = '/project/37192747640';
 		
 		this.add({			
-			xtype: 'rallycardboard',
-			types: ['Defect'],
-			attribute: 'c_TriageVerdict',
+			xtype: 'rallygridboard',
+			modelNames: ['Defect'],
+			toggleState: 'board',
 			context: this.getContext(),
-			// readOnly: true,
 			storeConfig: {
 				context: {
 					project: project_oid,
@@ -57,24 +56,40 @@ Ext.define('CustomApp', {
 					projectScopeUp: false
 				}
 			},
-			columnConfig: {
-				columnHeaderConfig: {
-					headerTpl: '{triageVerdict}'
+			cardBoardConfig: {
+				columns: columns,
+				columnConfig: {
+					columnHeaderConfig: {
+						headerTpl: '{triageVerdict}'
+					},
+					plugins: [
+						{ptype: 'rallycolumncardcounter'}
+					]
 				},
-				plugins: [
-					{ptype: 'rallycolumncardcounter'}
-				]
+				attribute: 'c_TriageVerdict',
+				cardConfig: {
+					showIconsAndHighlightBorder: true,
+					editable: true,
+					fields: ['CreationDate','c_TestingType','TestCase'],
+					showAge: true
+				},
+				rowConfig: {
+					field: 'Severity'
+				}
 			},
-			columns: columns,
-			cardConfig: {
-				showIconsAndHighlightBorder: true,
-				editable: true,
-				fields: ['CreationDate','c_TestingType','TestCase'],
-				showAge: true
-			},
-			rowConfig: {
-				field: 'Severity'
-			}
+			plugins: [
+				{
+					ptype: 'rallygridboardfieldpicker',
+					modelNames: ['Defect'],
+					headerPosition: 'left'
+				}, {
+                    ptype: 'rallygridboardcustomfiltercontrol',
+					headerPosition: 'left',
+                    filterControlConfig: {
+						modelNames: ['Defect']
+					}
+                }
+			]
 		});
 	}
 });
