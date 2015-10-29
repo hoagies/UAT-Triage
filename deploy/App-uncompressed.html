@@ -11,60 +11,51 @@
     extend: 'Rally.app.App',
     componentCls: 'app',
 	launch: function() {
-		
-		// Radian
-		var project_oid = '/project/37192747640';
 
-		this.add({
-			xtype: 'rallycombobox',
-			stateful: true,
-			stateId: this.getContext().getScopedStateId('initiative'),
-			width: 600,
-			fieldLabel: 'Select Initiative:',
-			// Display Template
-			displayTpl: Ext.create('Ext.XTemplate','<tpl for=".">','{FormattedID} - {Name}','</tpl>'),
-			// List Template
-			tpl: Ext.create('Ext.XTemplate','<tpl for=".">','<div class="x-boundlist-item">{FormattedID} - {Name}</div>','</tpl>'),
-			storeConfig: {
-				autoLoad: true,
-				model: 'PortfolioItem/Initiative',
-				fetch: ['FormattedID', 'Name'],
-				sorters: [
-					{
-						property: 'ObjectID',
-						direction: 'ASC'
-					}
-				],
-				remoteGroup: false,
-				remoteSort: false,
-				remoteFilter: false,
-				limit: Infinity,
-				context: {
-					project: project_oid,
-					projectScopeDown: true,
-					projectScopeUp: false
+		var columns = [
+			{
+				value: 'CAT 0: Triage',
+				columnHeaderConfig: {
+					headerData: {triageVerdict: 'CAT 0: Triage'}
 				}
 			},
-			listeners: {
-				// select: this._onSelect,
-				select: this._onLoad,
-				ready: this._onLoad,
-				scope: this
+			{
+				value: 'CAT 1: OAF Defect',
+				columnHeaderConfig: {
+					headerData: {triageVerdict: 'CAT 1: OAF Defect'}
+				} 
+			},
+			{
+				value: 'CAT 2: OAF Requirement',
+				columnHeaderConfig: {
+					headerData: {triageVerdict: 'CAT 2: OAF Requirement'}
+				} 
+			},
+			{
+				value: 'CAT 3: OAF Training',
+				columnHeaderConfig: {
+					headerData: {triageVerdict: 'CAT 3: OAF Training'}
+				} 
+			},
+			{
+				value: 'CAT 4: Non-OAF',
+				columnHeaderConfig: {
+					headerData: {triageVerdict: 'CAT 4: Non-OAF'}
+				} 
+			},
+			{
+				value: 'CAT 5: Non-Issue',
+				columnHeaderConfig: {
+					headerData: {triageVerdict: 'CAT 5: Non-Issue'}
+				} 
 			}
-		});
-	},
-		
-	_onLoad: function() {
+		];
+			
 		var project_oid = '/project/37192747640';
 		
-		if (this.down('#features')) {
-			this.down('#features').destroy();
-		}
-		
-		this.add({
-			id: 'features',
+		this.add({			
 			xtype: 'rallygridboard',
-			modelNames: ['PortfolioItem/Feature'],
+			modelNames: ['Defect'],
 			toggleState: 'board',
 			context: this.getContext(),
 			storeConfig: {
@@ -72,56 +63,44 @@
 					project: project_oid,
 					projectScopeDown: true,
 					projectScopeUp: false
-				},
-				filters: [this._getFilter()]
+				}
 			},
-			// columnConfig: {
-				// plugins: [
-					// {ptype: 'rallycolumncardcounter'}
-				// ]
-			// },
-            cardBoardConfig: {
-                attribute: 'State',
-				fetch: ['Project', 'PercentDoneByStoryCount'],
-				cardConfig: {
-					xtype: 'rallycard',
-					fields: ['State','Project'],
-					showIconsAndHighlightBorder: false,
-					editable: false,
-					showAge: true
-				},
+			cardBoardConfig: {
+				columns: columns,
 				columnConfig: {
+					columnHeaderConfig: {
+						headerTpl: '{triageVerdict}'
+					},
 					plugins: [
 						{ptype: 'rallycolumncardcounter'}
 					]
+				},
+				attribute: 'c_TriageVerdict',
+				cardConfig: {
+					showIconsAndHighlightBorder: true,
+					editable: true,
+					fields: ['CreationDate','c_TestingType','TestCase'],
+					showAge: true
+				},
+				rowConfig: {
+					field: 'Severity'
 				}
-				// plugins: [{ptype:'rallyfixedheadercardboard'}]
-            },
+			},
 			plugins: [
 				{
 					ptype: 'rallygridboardfieldpicker',
-					modelNames: ['PortfolioItem/Feature'],
+					modelNames: ['Defect'],
 					headerPosition: 'left'
 				}, {
                     ptype: 'rallygridboardcustomfiltercontrol',
 					headerPosition: 'left',
                     filterControlConfig: {
-						modelNames: ['PortfolioItem/Feature']
+						modelNames: ['Defect']
 					}
                 }
 			]
 		});
-	},
-		
-	_getFilter: function() {
-		var combo = this.down('rallycombobox');
-		return {
-			property: 'Parent.Parent',
-			operator: '=',
-			value: combo.getValue()
-		};
 	}
-
 });
 
             Rally.launchApp('CustomApp', {
