@@ -39,7 +39,14 @@ Ext.define('CustomApp', {
 				columnHeaderConfig: {
 					headerData: {triageVerdict: 'CAT 5: Non-Issue'}
 				} 
+			},
+			{
+				value: 'CAT 6: Known Defect/Requirement',
+				columnHeaderConfig: {
+					headerData: {triageVerdict: 'CAT 6: Known Defect/Requirement'}
+				} 
 			}
+			
 		];
 			
 		var project_oid = '/project/37192747640';
