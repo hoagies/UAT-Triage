@@ -2,11 +2,7 @@ Ext.define('CustomApp', {
     extend: 'Rally.app.App',
     componentCls: 'app',
 	launch: function() {
-			
-		// -----------------------
-		// FILTER BY TESTING TYPE?
-		// -----------------------
-		
+
 		var columns = [
 			{
 				value: 'CAT 0: Triage',
@@ -36,6 +32,12 @@ Ext.define('CustomApp', {
 				value: 'CAT 4: Non-OAF',
 				columnHeaderConfig: {
 					headerData: {triageVerdict: 'CAT 4: Non-OAF'}
+				} 
+			},
+			{
+				value: 'CAT 5: Non-Issue',
+				columnHeaderConfig: {
+					headerData: {triageVerdict: 'CAT 5: Non-Issue'}
 				} 
 			}
 		];
