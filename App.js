@@ -20,6 +20,7 @@ Ext.define('CustomApp', {
 			fieldLabel: 'Choose Row Field',
 			id: 'rowfieldcombo',
 			store: rowFieldStore,
+			value: 'Priority',
 			stateful: true,
 			stateId: this.getContext().getScopedStateId('rowfieldcombo'),
 			storeConfig:{
