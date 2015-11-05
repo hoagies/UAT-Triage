@@ -149,7 +149,7 @@ Ext.define('CustomApp', {
 			}
 		];
 		
-		var project_oid = '/project/37192747640';
+		// var project_oid = '/project/37192747640';
 
 		var myGrid = Ext.getCmp('rallygridboard');
 		if (myGrid) {
@@ -165,13 +165,13 @@ Ext.define('CustomApp', {
 			id: 'features',
 			modelNames: modelNames,
 			toggleState: 'board',
-			storeConfig: {
-				context: {
-					project: project_oid,
-					projectScopeDown: true,
-					projectScopeUp: false
-				}
-			},
+			// storeConfig: {
+				// context: {
+					// project: project_oid,
+					// projectScopeDown: true,
+					// projectScopeUp: false
+				// }
+			// },
 			cardBoardConfig: {
 				columns: columns,
 				columnConfig: {
