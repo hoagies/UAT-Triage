@@ -1,71 +1,267 @@
 Ext.define('CustomApp', {
     extend: 'Rally.app.App',
     componentCls: 'app',
+	autoScroll: false,
 	launch: function() {
 
-		this.add({
-			xtype: 'rallycombobox',
+		var mainPanel = Ext.create('Ext.panel.Panel', {
+			width: '100%',
+			height: 600,
+			// title: 'Border Layout',
+			layout: 'border',
+			items: [{
+				itemId: 'childPanel1',
+				region:'center',
+				xtype: 'panel',
+				margins: '5 5 5 5',
+				layout: 'fit',
+				// autoScroll: true
+				// itemId: 'childPanel2',
+				// title: 'Predecessors',
+				// region: 'south',
+				// flex: 1,
+				// xtype: 'panel',
+				// margins: '0 5 5 5'
+				// autoScroll: true,
+				// split: true
+			// },{
+				// itemId: 'childPanel3',
+				// title: 'Technology Stories',
+				// region: 'east',
+				// flex: 1,
+				// xtype: 'panel',
+				// margins: '5 5 0 0',
+				// autoScroll: true,
+				// split: true
+			}]
+			// renderTo: Ext.getBody()
+		});
+		
+		var rowFieldStore = Ext.create('Ext.data.Store', {
+			fields: ['Field'],
+			data : [
+				{'Field': 'Priority'},
+				{'Field': 'Severity'}
+			]
+		});
+
+		allFields = Ext.create('Ext.data.Store', {
+			id: 'defectrows',
+			fields: ['Name','Count']
+		});
+
+		this.rowSelector = Ext.create('Ext.form.ComboBox', {
+			fieldLabel: 'Choose Row Field',
+			id: 'rowfieldcombo',
+			store: rowFieldStore,
+			value: 'Priority',
 			stateful: true,
-			stateId: this.getContext().getScopedStateId('theme'),
-			width: 600,
-			fieldLabel: 'Select Theme:',
-			// Display Template
-			displayTpl: Ext.create('Ext.XTemplate','<tpl for=".">','{FormattedID} - {Name}','</tpl>'),
-			// List Template
-			tpl: Ext.create('Ext.XTemplate','<tpl for=".">','<div class="x-boundlist-item">{FormattedID} - {Name}</div>','</tpl>'),
-			storeConfig: {
-				autoLoad: true,
-				model: 'PortfolioItem/Theme',
-				fetch: ['FormattedID','Name'],
-				sorters: [
-					{
-						property: 'Rank',
-						direction: 'ASC'
-					}
-				],
-				filters : [
-					{ property: 'Parent.FormattedID', operator: '=', value: 'I79' }
-				],
-				limit: Infinity
+			stateId: this.getContext().getScopedStateId('rowfieldcombo'),
+			storeConfig:{
+				autoLoad: true
 			},
+			queryMode: 'local',
+			displayField: 'Field',
+			valueField: 'Field',
 			listeners: {
-				select: this._onSelect,
-				ready: this._onLoad,
+				select: this._proceed,
+				ready: this._proceed,
+				render: this._proceed,
 				scope: this
 			}
 		});
+		this.add(this.rowSelector);
+		this.add(mainPanel);
 	},
-		
-	_onLoad: function() {
-		this.add({
-			xtype: 'rallycardboard',
-			types: ['User Story'],
-			context: this.getContext(),
-			storeConfig: {
-				filters: [this._getThemeFilter()]
-			},
-			cardConfig: {
-				showIconsAndHighlightBorder: true,
-				editable: true,
-				showAge: true,
-				sorters: [
-					{
-						property: 'Rank',
-						direction: 'ASC'
+	
+	_proceed: function(){
+
+		that = this;
+		that._storestotal = [];
+		var rowField = this._getRowField();
+		var attribute = Rally.data.ModelFactory.getModel({
+			type: 'Defect',
+			success: function(model) {
+				model.getField(rowField).getAllowedValueStore().load({
+					callback: function(records, operation, success) {
+						Ext.Array.each(records, function(allowedValue) {
+							var stringValue = allowedValue.get('StringValue');
+							// Build Store for each Allowed Value
+							var defectStore = Ext.create('Rally.data.WsapiDataStore', {
+								model: 'Defect',
+								pageSize: 200,
+								limit: 10000,
+								autoLoad: true,
+								storeId: 'defectstore_' + allowedValue.get('StringValue'),
+								fetch: [
+									'FormattedID','c_TriageVerdict'
+								],
+								filters: [
+									{
+										property: 'c_TriageVerdict',
+										operator: '!=',
+										value: null
+									},
+									{
+										property: rowField,
+										operator: '=',
+										value: stringValue
+									}
+								],
+								listeners: {
+									load: function(store, data, success) {
+										var a = that._storestotal.length;
+										var b = records.length;
+										if(stringValue===''){
+											stringValue = 'None';
+										}
+										that._storestotal.push({
+											Name: stringValue,
+											Count: store.getCount()
+										});
+										if(a+1>=b){
+											var initiativeStore = Ext.StoreMgr.lookup('defectrows');
+											initiativeStore.loadData(that._storestotal);
+											that._onLoad();
+										}
+									},
+									scope: that
+								}
+							});
+						});
 					}
-				],
-				fields: ['Tags']
-			},
-			rowConfig: {
-				field: 'Feature'
-			},
-			listeners: {
-				load: this._onLoadBoard,
-				scope: this
+				});
 			}
 		});
 	},
 	
+	_onLoad: function(){
+		
+		// that = this;
+		
+		var columns = [
+			{
+				value: 'CAT 0: Triage',
+				columnHeaderConfig: {
+					headerData: {triageVerdict: 'CAT 0: Triage'}
+				}
+			},
+			{
+				value: 'CAT 1: OAF Defect',
+				columnHeaderConfig: {
+					headerData: {triageVerdict: 'CAT 1: OAF Defect'}
+				} 
+			},
+			{
+				value: 'CAT 2: OAF Requirement',
+				columnHeaderConfig: {
+					headerData: {triageVerdict: 'CAT 2: OAF Requirement'}
+				} 
+			},
+			{
+				value: 'CAT 3: OAF Training',
+				columnHeaderConfig: {
+					headerData: {triageVerdict: 'CAT 3: OAF Training'}
+				} 
+			},
+			{
+				value: 'CAT 4: Non-OAF',
+				columnHeaderConfig: {
+					headerData: {triageVerdict: 'CAT 4: Non-OAF'}
+				} 
+			},
+			{
+				value: 'CAT 5: Non-Issue',
+				columnHeaderConfig: {
+					headerData: {triageVerdict: 'CAT 5: Non-Issue'}
+				} 
+			},
+			{
+				value: 'CAT 6: Known Defect/Requirement',
+				columnHeaderConfig: {
+					headerData: {triageVerdict: 'CAT 6: Known Defect/Requirement'}
+				} 
+			}
+		];
+		
+		// var project_oid = '/project/37192747640';
+
+		var myGrid = Ext.getCmp('#features');
+		var grid = this.down('#features');
+		// console.log(grid);
+		// if (myGrid) {
+			// console.log(myGrid);
+			// console.log(grid);
+			// myGrid.removeAll();
+		// }
+
+		var context = this.getContext();
+		var modelNames = ['defect'];
+		this.down('#childPanel1').add({
+			xtype: 'rallygridboard',
+			context: context,
+			stateful: false,
+			id: 'features',
+			modelNames: modelNames,
+			autoScroll: true,
+			toggleState: 'board',
+			cardBoardConfig: {
+				columns: columns,
+				columnConfig: {
+					columnHeaderConfig: {
+						headerTpl: '{triageVerdict}',
+						fixed: true
+					},
+					plugins: [
+						{ptype: 'rallycolumncardcounter'}
+					]
+				},
+				attribute: 'c_TriageVerdict',
+				cardConfig: {
+					xtype: 'rallycard',
+					showIconsAndHighlightBorder: true,
+					editable: true,
+					fields: ['CreationDate','c_TestingType','TestCase',this._getOppositeRowField()],
+					showAge: true
+				},
+				rowConfig: {
+					field: this._getRowField(),
+					headerConfig: {
+						_getTitle: function(){
+							var initiativeStore = Ext.StoreMgr.lookup('defectrows');
+							var rowval = this.getValue();
+							var record = initiativeStore.findRecord('Name',rowval);
+							var cardCount = record.get('Count');
+							return this.getValue() + ' (' + cardCount + ')';
+						}
+					}
+				}
+			},
+			plugins: [
+				{
+					ptype: 'rallygridboardfieldpicker',
+					modelNames: modelNames,
+					headerPosition: 'left',
+					stateful: true,
+					stateId: context.getScopedStateId('picker')
+				}, {
+                    ptype: 'rallygridboardcustomfiltercontrol',
+					headerPosition: 'left',
+                    filterControlConfig: {
+						modelNames: modelNames,
+						stateful: true,
+						stateId: context.getScopedStateId('filter')
+					}
+                }
+			],
+			listeners: {
+				load: this._onLoadBoard,
+				scope: this
+			},
+			height: this.getHeight()
+		});
+	},
+
 	_onLoadBoard: function() {
 		var board = this.down('rallycardboard');
 		rows = board.getRows();
@@ -73,23 +269,20 @@ Ext.define('CustomApp', {
 			row.collapse();
 		});
 	},
-	
-	_onSelect: function() {
-		var board = this.down('rallycardboard');
-		board.refresh({
-			storeConfig: {
-				filters: [this._getThemeFilter()]
-			}
-		});
-	},
-		
-	_getThemeFilter: function() {
-		var combo = this.down('rallycombobox');
-		return {
-			property: 'Feature.Parent',
-			operator: '=',
-			value: combo.getValue()
-		};
-	}
 
+	_getRowField: function() {
+		combo = this.down('#rowfieldcombo');
+		var comboval = combo.getValue();
+		return comboval;
+	},
+	
+	_getOppositeRowField: function(){
+		if(this._getRowField()==='Severity'){
+			return 'Priority';
+		}else{
+			return 'Severity';
+		}
+	}
+	
+	
 });
