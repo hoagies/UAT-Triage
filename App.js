@@ -6,36 +6,24 @@ Ext.define('CustomApp', {
 
 		var mainPanel = Ext.create('Ext.panel.Panel', {
 			width: '100%',
-			height: 600,
+			// maxWidth: 600,
+			// height: '100%',
+			// minHeight: 400,
+			overflowX: 'auto',
+			// overflowY: 'auto',
+			// height: this.getHeight(),
+			border: true,
 			// title: 'Border Layout',
-			layout: 'border',
+			layout: 'fit',
 			items: [{
 				itemId: 'childPanel1',
 				region:'center',
 				xtype: 'panel',
-				margins: '5 5 5 5',
-				layout: 'fit',
-				// autoScroll: true
-				// itemId: 'childPanel2',
-				// title: 'Predecessors',
-				// region: 'south',
-				// flex: 1,
-				// xtype: 'panel',
-				// margins: '0 5 5 5'
-				// autoScroll: true,
-				// split: true
-			// },{
-				// itemId: 'childPanel3',
-				// title: 'Technology Stories',
-				// region: 'east',
-				// flex: 1,
-				// xtype: 'panel',
-				// margins: '5 5 0 0',
-				// autoScroll: true,
-				// split: true
+				// margins: '5 5 5 5',
+				layout: 'fit'
 			}]
-			// renderTo: Ext.getBody()
 		});
+		console.log(this);
 		
 		var rowFieldStore = Ext.create('Ext.data.Store', {
 			fields: ['Field'],
@@ -184,16 +172,8 @@ Ext.define('CustomApp', {
 			}
 		];
 		
-		// var project_oid = '/project/37192747640';
-
-		var myGrid = Ext.getCmp('#features');
-		var grid = this.down('#features');
-		// console.log(grid);
-		// if (myGrid) {
-			// console.log(myGrid);
-			// console.log(grid);
-			// myGrid.removeAll();
-		// }
+		// var myGrid = Ext.getCmp('#features');
+		// var grid = this.down('#features');
 
 		var context = this.getContext();
 		var modelNames = ['defect'];
