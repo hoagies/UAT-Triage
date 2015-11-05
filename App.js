@@ -2,13 +2,18 @@ Ext.define('CustomApp', {
     extend: 'Rally.app.App',
     componentCls: 'app',
 	launch: function() {
-
+		
 		var rowFieldStore = Ext.create('Ext.data.Store', {
 			fields: ['Field'],
 			data : [
 				{'Field': 'Priority'},
 				{'Field': 'Severity'}
 			]
+		});
+
+		allFields = Ext.create('Ext.data.Store', {
+			id: 'defectrows',
+			fields: ['Name','Count']
 		});
 
 		this.rowSelector = Ext.create('Ext.form.ComboBox', {
@@ -24,16 +29,79 @@ Ext.define('CustomApp', {
 			displayField: 'Field',
 			valueField: 'Field',
 			listeners: {
-				select: this._onLoad,
-				ready: this._onLoad,
-				render: this._onLoad,
+				select: this._proceed,
+				ready: this._proceed,
+				render: this._proceed,
 				scope: this
 			}
 		});
 		this.add(this.rowSelector); 
 	},
+	
+	_proceed: function(){
+
+		that = this;
+		that._storestotal = [];
+		var rowField = this._getRowField();
+		var attribute = Rally.data.ModelFactory.getModel({
+			type: 'Defect',
+			success: function(model) {
+				model.getField(rowField).getAllowedValueStore().load({
+					callback: function(records, operation, success) {
+						Ext.Array.each(records, function(allowedValue) {
+							var stringValue = allowedValue.get('StringValue');
+							// Build Store for each Allowed Value
+							var defectStore = Ext.create('Rally.data.WsapiDataStore', {
+								model: 'Defect',
+								pageSize: 200,
+								limit: 10000,
+								autoLoad: true,
+								storeId: 'defectstore_' + allowedValue.get('StringValue'),
+								fetch: [
+									'FormattedID','c_TriageVerdict'
+								],
+								filters: [
+									{
+										property: 'c_TriageVerdict',
+										operator: '!=',
+										value: null
+									},
+									{
+										property: rowField,
+										operator: '=',
+										value: stringValue
+									}
+								],
+								listeners: {
+									load: function(store, data, success) {
+										var a = that._storestotal.length;
+										var b = records.length;
+										if(stringValue===''){
+											stringValue = 'None';
+										}
+										that._storestotal.push({
+											Name: stringValue,
+											Count: store.getCount()
+										});
+										if(a+1>=b){
+											var initiativeStore = Ext.StoreMgr.lookup('defectrows');
+											initiativeStore.loadData(that._storestotal);
+											that._onLoad();
+										}
+									},
+									scope: that
+								}
+							});
+						});
+					}
+				});
+			}
+		});
+	},
+	
+	_onLoad: function(){
 		
-	_onLoad: function() {
+		// that = this;
 		
 		var columns = [
 			{
@@ -81,9 +149,10 @@ Ext.define('CustomApp', {
 		];
 		
 		var project_oid = '/project/37192747640';
-		
-		if (this.down('#features')) {
-			this.down('#features').destroy();
+
+		var myGrid = Ext.getCmp('rallygridboard');
+		if (myGrid) {
+			myGrid.destroy();
 		}
 
 		var context = this.getContext();
@@ -106,7 +175,8 @@ Ext.define('CustomApp', {
 				columns: columns,
 				columnConfig: {
 					columnHeaderConfig: {
-						headerTpl: '{triageVerdict}'
+						headerTpl: '{triageVerdict}',
+						fixed: true
 					},
 					plugins: [
 						{ptype: 'rallycolumncardcounter'}
@@ -121,35 +191,17 @@ Ext.define('CustomApp', {
 					showAge: true
 				},
 				rowConfig: {
-					field: this._getRowField()
-					// headerConfig: {
-						// _getTitle: function() {
-							// console.log(this.getColumns());
-							// var cardsInRow = getCardsInRow(this);
-							// console.log(cardsInRow);
-							// var row = this.nextSibling;
-							// console.log(this.columns.get('_cardsByRow'));
-							// console.log('SEAN: ',getCardsInRow(row));
-							// return this.getValue() + ' (myCustomTitle)';
-						// }
-					// }
+					field: this._getRowField(),
+					headerConfig: {
+						_getTitle: function(){
+							var initiativeStore = Ext.StoreMgr.lookup('defectrows');
+							var rowval = this.getValue();
+							var record = initiativeStore.findRecord('Name',rowval);
+							var cardCount = record.get('Count');
+							return this.getValue() + ' (' + cardCount + ')';
+						}
+					}
 				}
-				// listeners: {
-					// load: function(board) {
-						// var rows = board.getRows();
-						// _.each(rows, function(row) {
-							// console.log(row.getValue());
-							// var cardsInRow = board.getCardsInRow(row);
-							// var cardCount = _.flatten(_.values(cardsInRow)).length;
-							// console.log(row.headerConfig);
-							// if(cardCount === 0) {
-								// row.collapse();
-							// }else{
-								// row.expand();
-							// }
-						// });
-					// }
-				// }
 			},
 			plugins: [
 				{
@@ -168,6 +220,7 @@ Ext.define('CustomApp', {
 					}
                 }
 			],
+			margin: '10px 0 0 0',
 			height: this.getHeight()
 		});
 	},
@@ -177,14 +230,14 @@ Ext.define('CustomApp', {
 		var comboval = combo.getValue();
 		return comboval;
 	},
+	
 	_getOppositeRowField: function(){
 		if(this._getRowField()==='Severity'){
 			return 'Priority';
 		}else{
 			return 'Severity';
 		}
-		// console.log(this._getRowField());
-		// return 'Priority';
 	}
-
+	
+	
 });
