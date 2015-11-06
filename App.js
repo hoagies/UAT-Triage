@@ -234,21 +234,21 @@ Ext.define('CustomApp', {
 					}
                 }
 			],
-			listeners: {
-				load: this._onLoadBoard,
-				scope: this
-			},
+			// listeners: {
+				// load: this._onLoadBoard,
+				// scope: this
+			// },
 			height: this.getHeight()
 		});
 	},
 
-	_onLoadBoard: function() {
-		var board = this.down('rallycardboard');
-		rows = board.getRows();
-		Ext.Array.each(rows, function(row) {
-			row.collapse();
-		});
-	},
+	// _onLoadBoard: function() {
+		// var board = this.down('rallycardboard');
+		// rows = board.getRows();
+		// Ext.Array.each(rows, function(row) {
+			// row.collapse();
+		// });
+	// },
 
 	_getRowField: function() {
 		combo = this.down('#rowfieldcombo');
@@ -263,6 +263,5 @@ Ext.define('CustomApp', {
 			return 'Severity';
 		}
 	}
-	
 	
 });
