@@ -1,29 +1,7 @@
 Ext.define('CustomApp', {
     extend: 'Rally.app.App',
     componentCls: 'app',
-	autoScroll: false,
 	launch: function() {
-
-		var mainPanel = Ext.create('Ext.panel.Panel', {
-			width: '100%',
-			// maxWidth: 600,
-			// height: '100%',
-			// minHeight: 400,
-			overflowX: 'auto',
-			// overflowY: 'auto',
-			// height: this.getHeight(),
-			border: true,
-			// title: 'Border Layout',
-			layout: 'fit',
-			items: [{
-				itemId: 'childPanel1',
-				region:'center',
-				xtype: 'panel',
-				// margins: '5 5 5 5',
-				layout: 'fit'
-			}]
-		});
-		console.log(this);
 		
 		var rowFieldStore = Ext.create('Ext.data.Store', {
 			fields: ['Field'],
@@ -58,8 +36,7 @@ Ext.define('CustomApp', {
 				scope: this
 			}
 		});
-		this.add(this.rowSelector);
-		this.add(mainPanel);
+		this.add(this.rowSelector); 
 	},
 	
 	_proceed: function(){
@@ -172,19 +149,29 @@ Ext.define('CustomApp', {
 			}
 		];
 		
-		// var myGrid = Ext.getCmp('#features');
-		// var grid = this.down('#features');
+		// var project_oid = '/project/37192747640';
+
+		var myGrid = Ext.getCmp('rallygridboard');
+		if (myGrid) {
+			myGrid.destroy();
+		}
 
 		var context = this.getContext();
 		var modelNames = ['defect'];
-		this.down('#childPanel1').add({
+		this.add({
 			xtype: 'rallygridboard',
 			context: context,
 			stateful: false,
 			id: 'features',
 			modelNames: modelNames,
-			autoScroll: true,
 			toggleState: 'board',
+			// storeConfig: {
+				// context: {
+					// project: project_oid,
+					// projectScopeDown: true,
+					// projectScopeUp: false
+				// }
+			// },
 			cardBoardConfig: {
 				columns: columns,
 				columnConfig: {
@@ -234,21 +221,10 @@ Ext.define('CustomApp', {
 					}
                 }
 			],
-			// listeners: {
-				// load: this._onLoadBoard,
-				// scope: this
-			// },
+			margin: '10px 0 0 0',
 			height: this.getHeight()
 		});
 	},
-
-	// _onLoadBoard: function() {
-		// var board = this.down('rallycardboard');
-		// rows = board.getRows();
-		// Ext.Array.each(rows, function(row) {
-			// row.collapse();
-		// });
-	// },
 
 	_getRowField: function() {
 		combo = this.down('#rowfieldcombo');
@@ -263,5 +239,6 @@ Ext.define('CustomApp', {
 			return 'Severity';
 		}
 	}
+	
 	
 });
